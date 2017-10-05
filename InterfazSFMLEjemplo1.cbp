@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="InterfazSFMLEjemplo1" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/InterfazSFMLEjemplo1" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-lsfml-graphics -lsfml-system -lsfml-window -fpermissive" />
+					<Add option="-D_GLIBCXX_USE_CXX11_ABI=0" />
+				</Compiler>
+				<Linker>
+					<Add library="SFML/lib/libsfml-graphics-d.so" />
+					<Add library="SFML/lib/libsfml-system-d.so" />
+					<Add library="SFML/lib/libsfml-window-d.so" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/InterfazSFMLEjemplo1" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add library="SFML/lib/libsfml-graphics.so" />
+					<Add library="SFML/lib/libsfml-system.so" />
+					<Add library="SFML/lib/libsfml-window.so" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++0x" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add directory="SFML/include" />
+		</Compiler>
+		<Linker>
+			<Add directory="SFML/lib" />
+		</Linker>
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
