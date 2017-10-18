@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <SFML/Graphics.hpp>
-
+#include <math.h>
 
 #define MAX 100
 #define SIZE_TABLERO 64
@@ -67,6 +67,14 @@ sf::Vector2f BoardToWindows(sf::Vector2f _position)
 /**
  * Contiene el código SFML que captura el evento del clic del mouse y el código que pinta por pantalla
  */
+
+double CalcularModulo(int xVectorOrigen, int yVectorOrigen, int xVectorDestino, int yVectorDestino)
+{
+
+
+    return sqrt(pow(xVectorOrigen - xVectorDestino, 2) + pow(yVectorOrigen - yVectorDestino, 2));
+
+}
 void DibujaSFML()
 {
     sf::Vector2f casillaOrigen, casillaDestino;
@@ -122,18 +130,22 @@ void DibujaSFML()
                         casillaDestino = TransformaCoordenadaACasilla(x, y);
 
                         if (quienSoy == TipoProceso::RATON && permitirMovimiento)
-                        {
-                            //TODO: Validar que el destino del ratón es correcto
+                        {   std::cout << CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y);
 
-                            //TODO: Si es correcto, modificar la posición del ratón y enviar las posiciones al padre
-                            posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
-                            posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
-
+                            //Validar que el destino del ratón es correcto mediante el modulo del punto origen y destino (igual raiz cuadrada de 2)
+                            if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f)
+                            {
+                                //TODO: Si es correcto, modificar la posición del ratón y enviar las posiciones al padre
+                                posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
+                                posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
+                            }
 
                         }
                         else if (quienSoy == TipoProceso::GATO && permitirMovimiento)
                         {
-                            //TODO: Validar que el destino del gato es correcto
+                            //Validar que el destino del gato es correcto
+                            if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f && casillaDestino == casillaOrigen + 1)
+
 
                             //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
                             posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
