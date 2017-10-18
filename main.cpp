@@ -16,7 +16,18 @@
 #define OFFSET_AVATAR 5
 
 enum TipoProceso {RATON, GATO, PADRE};
+bool permitirMovimiento = false;
+int auxiliarIndice;
 char tablero[SIZE_TABLERO];
+float posicionesPiezas[5][2]
+{
+    {4.f,7.f},
+    {1.f,0.f},
+    {3.f,0.f},
+    {5.f,0.f},
+    {7.f,0.f}
+};
+
 
 /**
  * Si vale true --> nos permite marcar casilla con el mouse
@@ -71,51 +82,74 @@ void DibujaSFML()
         {
             switch(event.type)
             {
-                case sf::Event::Closed:
-                    window.close();
-                    break;
-                case sf::Event::MouseButtonPressed:
-                    if (event.mouseButton.button == sf::Mouse::Left && tienesTurno)
+            case sf::Event::Closed:
+                window.close();
+                break;
+            case sf::Event::MouseButtonPressed:
+                if (event.mouseButton.button == sf::Mouse::Left && tienesTurno)
+                {
+                    int x = event.mouseButton.x;
+                    int y = event.mouseButton.y;
+                    if (!casillaMarcada)
                     {
-                        int x = event.mouseButton.x;
-                        int y = event.mouseButton.y;
-                        if (!casillaMarcada)
+                        casillaOrigen = TransformaCoordenadaACasilla(x, y);
+
+
+                        //Encontramos que pieza seleccionamos
+                        for(int i = 0; i < 5; i ++)
                         {
-                            casillaOrigen = TransformaCoordenadaACasilla(x, y);
-                            casillaMarcada = true;
-                            //TODO: Comprobar que la casilla marcada coincide con las posición del raton (si le toca al ratón)
-                            //o con la posicion de alguna de las piezas del gato (si le toca al gato)
-
-                        }
-                        else
-                        {
-                            casillaDestino = TransformaCoordenadaACasilla(x, y);
-                            if (casillaOrigen.x == casillaDestino.x && casillaOrigen.y == casillaDestino.y)
+                            if(casillaOrigen.x == posicionesPiezas[i][0])
                             {
-                                casillaMarcada = false;
-                                //Si me vuelven a picar sobre la misma casilla, la desmarco
-                            }
-                            else
-                            {
-                                if (quienSoy == TipoProceso::RATON)
+
+                                if(casillaOrigen.y == posicionesPiezas[i][1])
                                 {
-                                    //TODO: Validar que el destino del ratón es correcto
-
-                                    //TODO: Si es correcto, modificar la posición del ratón y enviar las posiciones al padre
-
+                                    casillaMarcada = true;
+                                    permitirMovimiento = true;
+                                    auxiliarIndice = i;
+                                    break;
                                 }
-                                else if (quienSoy == TipoProceso::GATO)
-                                {
-                                    //TODO: Validar que el destino del gato es correcto
 
-                                    //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
-                                }
+
+
                             }
                         }
+                        //TODO: Comprobar que la casilla marcada coincide con las posición del raton (si le toca al ratón)
+                        //o con la posicion de alguna de las piezas del gato (si le toca al gato)
+
                     }
-                    break;
-                default:
-                    break;
+                    else
+                    {
+                        casillaDestino = TransformaCoordenadaACasilla(x, y);
+
+                        if (quienSoy == TipoProceso::RATON && permitirMovimiento)
+                        {
+                            //TODO: Validar que el destino del ratón es correcto
+
+                            //TODO: Si es correcto, modificar la posición del ratón y enviar las posiciones al padre
+                            posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
+                            posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
+
+
+                        }
+                        else if (quienSoy == TipoProceso::GATO && permitirMovimiento)
+                        {
+                            //TODO: Validar que el destino del gato es correcto
+
+                            //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
+                            posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
+                            posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
+
+                        }
+
+                        permitirMovimiento = false;
+
+                        //Despues de un movimiento o cancelarlo borramos el cuadro amarillo.
+                        casillaMarcada = false;
+                    }
+                }
+                break;
+            default:
+                break;
 
             }
         }
@@ -151,10 +185,10 @@ void DibujaSFML()
             }
         }
 
-        //TODO: Para pintar el circulito del ratón en nuevas coordenadas
+        //Para pintar el circulito del ratón en nuevas coordenadas
         sf::CircleShape shapeRaton(RADIO_AVATAR);
         shapeRaton.setFillColor(sf::Color::Blue);
-        sf::Vector2f posicionRaton(4.f,7.f);
+        sf::Vector2f posicionRaton(posicionesPiezas[0][0], posicionesPiezas[0][1]);
         posicionRaton = BoardToWindows(posicionRaton);
         shapeRaton.setPosition(posicionRaton);
         window.draw(shapeRaton);
@@ -163,25 +197,25 @@ void DibujaSFML()
         sf::CircleShape shapeGato(RADIO_AVATAR);
         shapeGato.setFillColor(sf::Color::Red);
 
-        sf::Vector2f positionGato1(1.f,0.f);
+        sf::Vector2f positionGato1(posicionesPiezas[1][0], posicionesPiezas[1][1]);
         positionGato1 = BoardToWindows(positionGato1);
         shapeGato.setPosition(positionGato1);
 
         window.draw(shapeGato);
 
-        sf::Vector2f positionGato2(3.f,0.f);
+        sf::Vector2f positionGato2(posicionesPiezas[2][0], posicionesPiezas[2][1]);
         positionGato2 = BoardToWindows(positionGato2);
         shapeGato.setPosition(positionGato2);
 
         window.draw(shapeGato);
 
-        sf::Vector2f positionGato3(5.f,0.f);
+        sf::Vector2f positionGato3(posicionesPiezas[3][0], posicionesPiezas[3][1]);
         positionGato3 = BoardToWindows(positionGato3);
         shapeGato.setPosition(positionGato3);
 
         window.draw(shapeGato);
 
-        sf::Vector2f positionGato4(7.f,0.f);
+        sf::Vector2f positionGato4(posicionesPiezas[4][0], posicionesPiezas[4][1]);
         positionGato4 = BoardToWindows(positionGato4);
         shapeGato.setPosition(positionGato4);
 
@@ -227,6 +261,7 @@ void DibujaSFML()
 
 int main()
 {
+
     DibujaSFML();
     return 0;
 }
