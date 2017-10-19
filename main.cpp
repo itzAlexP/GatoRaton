@@ -209,7 +209,7 @@ void DibujaSFML()
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f && casillaDestino.y == casillaOrigen.y + 1)
                             {
 
-                                for(int i = 1; i < 5; i++)
+                                for(int i = 0; i < 5; i++)
                                 {
 
                                     if(casillaDestino.x == posicionesPiezas[i][0] && casillaDestino.y == posicionesPiezas[i][1])
