@@ -39,7 +39,7 @@ bool tienesTurno = true;
  * Ahora mismo no tiene efecto, pero luego lo necesitarás para validar los movimientos
  * en función de si eres el gato o el ratón.
  */
-TipoProceso quienSoy = TipoProceso::RATON;
+TipoProceso quienSoy = TipoProceso::GATO;
 
 
 
@@ -144,13 +144,13 @@ void DibujaSFML()
                         else if (quienSoy == TipoProceso::GATO && permitirMovimiento)
                         {
                             //Validar que el destino del gato es correcto
-                            if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f && casillaDestino == casillaOrigen + 1)
-
+                            if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f && casillaDestino.y == casillaOrigen.y + 1)
+                            {
 
                             //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
                             posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
                             posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
-
+                            }
                         }
 
                         permitirMovimiento = false;
