@@ -49,6 +49,14 @@ bool tienesTurno = false;
 TipoProceso quienSoy;
 
 
+/*Calcula el modulo del vector que forman dos puntos. Lo usamos para controlar el movimiento de las piezas*/
+double CalcularModulo(int xVectorOrigen, int yVectorOrigen, int xVectorDestino, int yVectorDestino)
+{
+
+
+    return sqrt(pow(xVectorOrigen - xVectorDestino, 2) + pow(yVectorOrigen - yVectorDestino, 2));
+
+}
 
 /**
  * Cuando el jugador clica en la pantalla, se nos da una coordenada del 0 al 512.
@@ -95,17 +103,27 @@ void HijoLeePadre(int param)
     posicionesPiezas[buffer[0]][1] = buffer[2];
     tienesTurno = true;
 
+    int requisito = 4;
+                                    int coincidencias = 0;
+
+                                    if((posicionesPiezas[0][0] == 0 || posicionesPiezas[0][0] == 7) && posicionesPiezas[0][1] == 7){requisito -= 3;}
+                                    else if(posicionesPiezas[0][0] == 0 || posicionesPiezas[0][0] == 7 || posicionesPiezas[0][1] == 7){requisito -= 2;}
+
+                                    for(int i = 1; i < 5; i ++){
+
+                                    if(CalcularModulo(posicionesPiezas[0][0], posicionesPiezas[0][1], posicionesPiezas[i][0], posicionesPiezas[i][1]) > 1.4f && CalcularModulo(posicionesPiezas[0][0], posicionesPiezas[0][1], posicionesPiezas[i][0], posicionesPiezas[i][1]) < 1.5f)
+                                        coincidencias ++;
+                                    }
+
+                                    if(requisito == coincidencias){
+                                    texto = "You Lose";
+                                    partidaFinalizada = true;
+                                    }
+
 
 }
 
-/*Calcula el modulo del vector que forman dos puntos. Lo usamos para controlar el movimiento de las piezas*/
-double CalcularModulo(int xVectorOrigen, int yVectorOrigen, int xVectorDestino, int yVectorDestino)
-{
 
-
-    return sqrt(pow(xVectorOrigen - xVectorDestino, 2) + pow(yVectorOrigen - yVectorDestino, 2));
-
-}
 
 /**
  * Contiene el código SFML que captura el evento del clic del mouse y el código que pinta por pantalla
@@ -237,6 +255,23 @@ void DibujaSFML()
                                     //Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
                                     posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
                                     posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
+
+                                    int requisito = 4;
+                                    int coincidencias = 0;
+
+                                    if((posicionesPiezas[0][0] == 0 || posicionesPiezas[0][0] == 7) && posicionesPiezas[0][1] == 7){requisito -= 3;}
+                                    else if(posicionesPiezas[0][0] == 0 || posicionesPiezas[0][0] == 7 || posicionesPiezas[0][1] == 7){requisito -= 2;}
+
+                                    for(int i = 1; i < 5; i ++){
+
+                                    if(CalcularModulo(posicionesPiezas[0][0], posicionesPiezas[0][1], posicionesPiezas[i][0], posicionesPiezas[i][1]) > 1.4f && CalcularModulo(posicionesPiezas[0][0], posicionesPiezas[0][1], posicionesPiezas[i][0], posicionesPiezas[i][1]) < 1.5f)
+                                        coincidencias ++;
+                                    }
+
+                                    if(requisito == coincidencias){
+                                    texto = "You Win";
+                                    partidaFinalizada = true;
+                                    }
 
                                     buffer[0] = auxiliarIndice;
                                     buffer[1] = casillaDestino.x;
