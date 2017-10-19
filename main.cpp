@@ -15,6 +15,10 @@
 #define RADIO_AVATAR 25.f
 #define OFFSET_AVATAR 5
 
+pid_t pidPadreGato, pidRaton;
+
+int iFd[2];
+int buffer[3];
 enum TipoProceso {RATON, GATO, PADRE};
 bool permitirMovimiento = false;
 int auxiliarIndice;
@@ -33,7 +37,7 @@ float posicionesPiezas[5][2]
  * Si vale true --> nos permite marcar casilla con el mouse
  * Si vale false --> No podemos interactuar con el tablero y aparece un letrero de "esperando"
  */
-bool tienesTurno = true;
+bool tienesTurno = false;
 
 /**
  * Ahora mismo no tiene efecto, pero luego lo necesitarás para validar los movimientos
@@ -64,10 +68,30 @@ sf::Vector2f BoardToWindows(sf::Vector2f _position)
     return sf::Vector2f(_position.x*LADO_CASILLA+OFFSET_AVATAR, _position.y*LADO_CASILLA+OFFSET_AVATAR);
 }
 
-/**
- * Contiene el código SFML que captura el evento del clic del mouse y el código que pinta por pantalla
- */
+void PadreLeeHijo (int param)
+{
 
+    size_t s = read(iFd[0], buffer, 3 * sizeof(int));
+    posicionesPiezas[buffer[0]][0] = buffer[1];
+    posicionesPiezas[buffer[0]][1] = buffer[2];
+    tienesTurno = true;
+
+
+
+}
+
+void HijoLeePadre(int param)
+{
+
+    size_t s = read(iFd[0], buffer, 3 * sizeof(int));
+    posicionesPiezas[buffer[0]][0] = buffer[1];
+    posicionesPiezas[buffer[0]][1] = buffer[2];
+    tienesTurno = true;
+
+
+}
+
+/*Calcula el modulo del vector que forman dos puntos. Lo usamos para controlar el movimiento de las piezas*/
 double CalcularModulo(int xVectorOrigen, int yVectorOrigen, int xVectorDestino, int yVectorDestino)
 {
 
@@ -75,6 +99,10 @@ double CalcularModulo(int xVectorOrigen, int yVectorOrigen, int xVectorDestino, 
     return sqrt(pow(xVectorOrigen - xVectorDestino, 2) + pow(yVectorOrigen - yVectorDestino, 2));
 
 }
+
+/**
+ * Contiene el código SFML que captura el evento del clic del mouse y el código que pinta por pantalla
+ */
 void DibujaSFML()
 {
     sf::Vector2f casillaOrigen, casillaDestino;
@@ -88,6 +116,7 @@ void DibujaSFML()
         //Este primer WHILE es para controlar los eventos del mouse
         while(window.pollEvent(event))
         {
+
             switch(event.type)
             {
             case sf::Event::Closed:
@@ -96,6 +125,7 @@ void DibujaSFML()
             case sf::Event::MouseButtonPressed:
                 if (event.mouseButton.button == sf::Mouse::Left && tienesTurno)
                 {
+
                     int x = event.mouseButton.x;
                     int y = event.mouseButton.y;
                     if (!casillaMarcada)
@@ -115,6 +145,7 @@ void DibujaSFML()
                                     permitirMovimiento = true;
                                     auxiliarIndice = i;
                                     break;
+
                                 }
 
 
@@ -130,7 +161,8 @@ void DibujaSFML()
                         casillaDestino = TransformaCoordenadaACasilla(x, y);
 
                         if (quienSoy == TipoProceso::RATON && permitirMovimiento)
-                        {   std::cout << CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y);
+                        {
+
 
                             //Validar que el destino del ratón es correcto mediante el modulo del punto origen y destino (igual raiz cuadrada de 2)
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f)
@@ -138,18 +170,37 @@ void DibujaSFML()
                                 //TODO: Si es correcto, modificar la posición del ratón y enviar las posiciones al padre
                                 posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
                                 posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
+
+                                //Almacenamos las posiciones al buffer
+                                buffer[0] = auxiliarIndice;
+                                buffer[1] = casillaDestino.x;
+                                buffer[2] = casillaDestino.y;
+
+                                write(iFd[1], buffer, 3 * sizeof(int));
+                                kill(getppid(), SIGUSR1);
+                                tienesTurno = false;
+
                             }
 
                         }
                         else if (quienSoy == TipoProceso::GATO && permitirMovimiento)
                         {
+
                             //Validar que el destino del gato es correcto
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f && casillaDestino.y == casillaOrigen.y + 1)
                             {
 
-                            //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
-                            posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
-                            posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
+                                //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
+                                posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
+                                posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
+
+                                buffer[0] = auxiliarIndice;
+                                buffer[1] = casillaDestino.x;
+                                buffer[2] = casillaDestino.y;
+
+                                write(iFd[1], buffer, 3 * sizeof(int));
+                                kill(pidRaton, SIGUSR2);
+                                tienesTurno = false;
                             }
                         }
 
@@ -273,7 +324,34 @@ void DibujaSFML()
 
 int main()
 {
+    signal(SIGUSR1, PadreLeeHijo);
+    signal(SIGUSR2, HijoLeePadre);
 
-    DibujaSFML();
+    int ok = pipe(iFd);
+
+    if (ok == 0)
+    {
+
+        pidRaton = fork();
+
+        //Soy raton
+        if(pidRaton == 0)
+        {
+            //Configuramos el proceso del raton y enviamos su id al padre para poder establecer la comunicacion
+            quienSoy = TipoProceso::RATON;
+            tienesTurno = true;
+            permitirMovimiento = true;
+
+        }
+
+        DibujaSFML();
+    }
+
+
+
+    else
+    {
+        std::cout << "Error en creacion de pipe" << std::endl;
+    }
     return 0;
 }
