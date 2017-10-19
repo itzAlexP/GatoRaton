@@ -153,8 +153,14 @@ void DibujaSFML()
                         //Comprobar que la casilla marcada coincide con las posición del raton (si le toca al ratón)
                         //o con la posicion de alguna de las piezas del gato (si le toca al gato)
 
-                        if(quienSoy == TipoProceso::RATON && auxiliarIndice != 0){permitirMovimiento = false;}
-                        if(quienSoy == TipoProceso::GATO && auxiliarIndice == 0){permitirMovimiento = false;}
+                        if(quienSoy == TipoProceso::RATON && auxiliarIndice != 0)
+                        {
+                            permitirMovimiento = false;
+                        }
+                        if(quienSoy == TipoProceso::GATO && auxiliarIndice == 0)
+                        {
+                            permitirMovimiento = false;
+                        }
                     }
                     else
                     {
@@ -162,7 +168,7 @@ void DibujaSFML()
 
                         if (quienSoy == TipoProceso::RATON && permitirMovimiento)
                         {
-                            std::cout << "Entre raton" << std::endl;
+
 
                             //Validar que el destino del ratón es correcto mediante el modulo del punto origen y destino (igual raiz cuadrada de 2)
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f)
@@ -185,22 +191,41 @@ void DibujaSFML()
                         }
                         else if (quienSoy == TipoProceso::GATO && permitirMovimiento)
                         {
-                            std::cout << "Entre gato" << std::endl;
+                            bool coincide = false;
+
                             //Validar que el destino del gato es correcto
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f && casillaDestino.y == casillaOrigen.y + 1)
                             {
 
-                                //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
-                                posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
-                                posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
 
-                                buffer[0] = auxiliarIndice;
-                                buffer[1] = casillaDestino.x;
-                                buffer[2] = casillaDestino.y;
+                                for(int i = 1; i < 5; i++)
+                                {
 
-                                write(iFd[1], buffer, 3 * sizeof(int));
-                                kill(pidRaton, SIGUSR2);
-                                tienesTurno = false;
+                                    if(casillaDestino.x == posicionesPiezas[i][0] && casillaDestino.y == posicionesPiezas[i][1])
+                                    {
+                                        coincide = true;
+
+                                    }
+
+
+                                }
+                                if(!coincide)
+                                {
+
+                                    //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
+                                    posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
+                                    posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
+
+                                    buffer[0] = auxiliarIndice;
+                                    buffer[1] = casillaDestino.x;
+                                    buffer[2] = casillaDestino.y;
+
+                                    write(iFd[1], buffer, 3 * sizeof(int));
+                                    kill(pidRaton, SIGUSR2);
+                                    tienesTurno = false;
+
+                                }
+
                             }
                         }
 
@@ -342,9 +367,11 @@ int main()
             tienesTurno = true;
             permitirMovimiento = true;
 
-        }else{
+        }
+        else
+        {
 
-         quienSoy = TipoProceso::GATO;
+            quienSoy = TipoProceso::GATO;
 
         }
 
