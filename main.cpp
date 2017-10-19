@@ -7,6 +7,7 @@
 #include <iostream>
 #include <SFML/Graphics.hpp>
 #include <math.h>
+#include <string.h>
 
 #define MAX 100
 #define SIZE_TABLERO 64
@@ -20,10 +21,12 @@ pid_t pidPadreGato, pidRaton;
 int iFd[2];
 int buffer[3];
 enum TipoProceso {RATON, GATO, PADRE};
-bool permitirMovimiento = false;
+bool permitirMovimiento = false, partidaFinalizada = false;
 int auxiliarIndice;
 char tablero[SIZE_TABLERO];
+std::string texto = "Esperando...";
 float posicionesPiezas[5][2]
+
 {
     {4.f,7.f},
     {1.f,0.f},
@@ -75,7 +78,11 @@ void PadreLeeHijo (int param)
     posicionesPiezas[buffer[0]][0] = buffer[1];
     posicionesPiezas[buffer[0]][1] = buffer[2];
     tienesTurno = true;
+    if(posicionesPiezas[0][1] == 0){
+        partidaFinalizada = true;
+        texto = "You Lose";
 
+    }
 
 
 }
@@ -114,7 +121,7 @@ void DibujaSFML()
         sf::Event event;
 
         //Este primer WHILE es para controlar los eventos del mouse
-        while(window.pollEvent(event))
+        while(window.pollEvent(event) && !partidaFinalizada)
         {
 
             switch(event.type)
@@ -196,6 +203,10 @@ void DibujaSFML()
 
                                 write(iFd[1], buffer, 3 * sizeof(int));
                                 kill(getppid(), SIGUSR1);
+                                if(posicionesPiezas[0][1] == 0){
+                                texto = "You Win";
+                                partidaFinalizada = true;
+                                }
                                 tienesTurno = false;
 }
                             }
@@ -321,7 +332,7 @@ void DibujaSFML()
         window.draw(shapeGato);
 
 
-        if (!tienesTurno)
+        if (!tienesTurno || partidaFinalizada)
         {
             //Si no tengo el turno, pinto un letrerito de "Esperando..."
             sf::Font font;
@@ -332,7 +343,7 @@ void DibujaSFML()
             }
 
 
-            sf::Text textEsperando("Esperando...", font);
+            sf::Text textEsperando(texto, font);
             textEsperando.setPosition(sf::Vector2f(180,200));
             textEsperando.setCharacterSize(30);
             textEsperando.setStyle(sf::Text::Bold);
