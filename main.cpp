@@ -168,12 +168,24 @@ void DibujaSFML()
 
                         if (quienSoy == TipoProceso::RATON && permitirMovimiento)
                         {
-
+                            bool coincide = false;
 
                             //Validar que el destino del ratón es correcto mediante el modulo del punto origen y destino (igual raiz cuadrada de 2)
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f)
                             {
-                                //TODO: Si es correcto, modificar la posición del ratón y enviar las posiciones al padre
+
+                            for(int i = 1; i < 5; i++){
+
+                                if(casillaDestino.x == posicionesPiezas[i][0] && casillaDestino.y == posicionesPiezas[i][1])
+                                    {
+                                        coincide = true;
+
+                                    }
+
+                                }
+
+                                if(!coincide){
+                                //Si es correcto, modificar la posición del ratón y enviar las posiciones al padre
                                 posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
                                 posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
 
@@ -185,7 +197,7 @@ void DibujaSFML()
                                 write(iFd[1], buffer, 3 * sizeof(int));
                                 kill(getppid(), SIGUSR1);
                                 tienesTurno = false;
-
+}
                             }
 
                         }
@@ -196,7 +208,6 @@ void DibujaSFML()
                             //Validar que el destino del gato es correcto
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f && casillaDestino.y == casillaOrigen.y + 1)
                             {
-
 
                                 for(int i = 1; i < 5; i++)
                                 {
@@ -212,7 +223,7 @@ void DibujaSFML()
                                 if(!coincide)
                                 {
 
-                                    //TODO: Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
+                                    //Si es correcto, modificar la posición de la pieza correspondiente del gato y enviar las posiciones al padre
                                     posicionesPiezas[auxiliarIndice][0] = casillaDestino.x;
                                     posicionesPiezas[auxiliarIndice][1] = casillaDestino.y;
 
