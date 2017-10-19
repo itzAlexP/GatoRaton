@@ -43,7 +43,7 @@ bool tienesTurno = false;
  * Ahora mismo no tiene efecto, pero luego lo necesitarás para validar los movimientos
  * en función de si eres el gato o el ratón.
  */
-TipoProceso quienSoy = TipoProceso::GATO;
+TipoProceso quienSoy;
 
 
 
@@ -147,14 +147,14 @@ void DibujaSFML()
                                     break;
 
                                 }
-
-
-
                             }
                         }
-                        //TODO: Comprobar que la casilla marcada coincide con las posición del raton (si le toca al ratón)
+
+                        //Comprobar que la casilla marcada coincide con las posición del raton (si le toca al ratón)
                         //o con la posicion de alguna de las piezas del gato (si le toca al gato)
 
+                        if(quienSoy == TipoProceso::RATON && auxiliarIndice != 0){permitirMovimiento = false;}
+                        if(quienSoy == TipoProceso::GATO && auxiliarIndice == 0){permitirMovimiento = false;}
                     }
                     else
                     {
@@ -162,7 +162,7 @@ void DibujaSFML()
 
                         if (quienSoy == TipoProceso::RATON && permitirMovimiento)
                         {
-
+                            std::cout << "Entre raton" << std::endl;
 
                             //Validar que el destino del ratón es correcto mediante el modulo del punto origen y destino (igual raiz cuadrada de 2)
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f)
@@ -185,7 +185,7 @@ void DibujaSFML()
                         }
                         else if (quienSoy == TipoProceso::GATO && permitirMovimiento)
                         {
-
+                            std::cout << "Entre gato" << std::endl;
                             //Validar que el destino del gato es correcto
                             if(CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) > 1.4f && CalcularModulo(casillaOrigen.x, casillaOrigen.y, casillaDestino.x, casillaDestino.y) < 1.5f && casillaDestino.y == casillaOrigen.y + 1)
                             {
@@ -341,6 +341,10 @@ int main()
             quienSoy = TipoProceso::RATON;
             tienesTurno = true;
             permitirMovimiento = true;
+
+        }else{
+
+         quienSoy = TipoProceso::GATO;
 
         }
 
